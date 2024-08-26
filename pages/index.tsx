@@ -180,7 +180,7 @@ const Home: NextPage = () => {
                     </ol>
                   </TextSubtle>
                 </Typography>
-                <Typography component="div" mt={2}><TextSubtle textAlign="left">{`Or if you want to prove that you are the owner, just give the instructions to whoever you need to prove it to. It's a higher quality proof if they choose the message.`}</TextSubtle></Typography>
+                <Typography component="div" mt={2}><TextSubtle textAlign="left" fontSize="14px">{`Or if you want to prove that you are the owner, just give the instructions to whoever you need to prove it to. It's a higher quality proof if they choose the message.`}</TextSubtle></Typography>
                 <Typography component="div" mt={2}>
                   <Stack direction="row" spacing={1} alignItems="center">
                     <TextNormal fontSize="14px" textAlign="left">{`Donate me a coffee: ${abbreviateAddressAsString(DONATION)}`}</TextNormal>
