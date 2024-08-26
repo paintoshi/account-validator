@@ -1,5 +1,5 @@
 "use client"
-import { ChangeEvent, useEffect, useState } from "react"
+import { ChangeEvent, useEffect, useMemo, useState } from "react"
 import { Manrope } from "next/font/google"
 import styles from "@/styles/Home.module.css"
 import type { NextPage } from 'next'
@@ -9,23 +9,41 @@ import { TextNormal, TextSubtle, TextSuccess, TextWarning } from '@/Components/S
 import Head from "next/head"
 import SuperButton from "@/Components/SuperButton"
 import SuperInput from "@/Components/SuperInput"
-import { createPublicClient, http } from "viem"
+import { createPublicClient, http, isAddress } from "viem"
 import { mainnet } from "viem/chains"
 import ConnectButton from "@/Components/ConnectButton"
 import { ContentCopy, ExpandMore } from "@mui/icons-material"
 import Image from "next/image"
+import styled from "styled-components"
+import ClearIcon from '@mui/icons-material/Clear'
+import { abbreviateAddressAsString } from "@/helpers/Utilities"
+
+const DONATION = '0x8CA12Fb5438252ab8efa25d3fb34166EDA1c17ED'
 
 const manrope = Manrope({ subsets: ["latin"] })
+
+const SearchClearButton = styled(IconButton)`
+  min-width: 14px;
+  width: 14px;
+  padding: 0;
+
+  :hover {
+    filter: brightness(1.2);
+  }
+`
 
 const Home: NextPage = () => {
   const { address } = useAccount()
   const [signMessage, setSignMessage] = useState<string>('')
-  const [signature, setSignature] = useState('')
+  const [signature, setSignature] = useState<string>('')
   const [validationAddress, setValidationAddress] = useState('')
   const [validationSignature, setValidationSignature] = useState('')
   const [validationMessage, setValidationMessage] = useState('')
-  const [wasCopied, setWasCopied] = useState(false)
+  const [wasCopiedSignature, setWasCopiedSignature] = useState(false)
+  const [wasCopiedCoffee, setWasCopiedCoffee] = useState(false)
   const [isValid, setIsValid] = useState<boolean | null>(null)
+  const [isSigning, setIsSigning] = useState(false)
+  const [isValidating, setIsValidating] = useState(false)
 
   const { signMessageAsync } = useSignMessage()
 
@@ -34,12 +52,37 @@ const Home: NextPage = () => {
     transport: http()
   })
 
+  const projectId = process.env?.NEXT_PUBLIC_WC_ID || ''
+  useEffect(() => {
+    console.info("WC", `${projectId?.slice(0, 4)}...`)
+  }, [projectId])
+
   const handleSignMessage = async () => {
+    setIsSigning(true)
     try {
       const sig = await signMessageAsync({ message: signMessage })
       setSignature(sig)
     } catch (error) {
       console.error('Error signing message:', error)
+    } finally {
+      setIsSigning(false)
+    }
+  }
+
+  const handleValidateSignature = async () => {
+    setIsValidating(true)
+    try {
+      const valid = await publicClient.verifyMessage({
+        address: validationAddress as `0x${string}`,
+        message: validationMessage,
+        signature: validationSignature as `0x${string}`
+      })
+      setIsValid(valid)
+    } catch (error) {
+      console.error('Error validating signature:', error)
+      setIsValid(false)
+    } finally {
+      setIsValidating(false)
     }
   }
 
@@ -55,32 +98,36 @@ const Home: NextPage = () => {
     setIsValid(null)
   }
 
-  const handleValidateSignature = async () => {
-    try {
-      const valid = await publicClient.verifyMessage({
-        address: validationAddress as `0x${string}`,
-        message: validationMessage,
-        signature: validationSignature as `0x${string}`
-      })
-      setIsValid(valid)
-    } catch (error) {
-      console.error('Error validating signature:', error)
-      setIsValid(false)
-    }
-  }
-
-  const projectId = process.env?.NEXT_PUBLIC_WC_ID || ''
-  useEffect(() => {
-    console.info("WC", `${projectId?.slice(0, 4)}...`)
-  }, [projectId])
-
   const handleCopySignature = () => {
     navigator.clipboard.writeText(signature)
-    setWasCopied(true)
+    setWasCopiedSignature(true)
     setTimeout(() => {
-      setWasCopied(false)
+      setWasCopiedSignature(false)
     }, 3000)
   }
+
+  const handleCopyCoffee = () => {
+    navigator.clipboard.writeText(DONATION)
+    setWasCopiedCoffee(true)
+    setTimeout(() => {
+      setWasCopiedCoffee(false)
+    }, 3000)
+  }
+
+  // For input address validation
+  const helperTextAddress: string = useMemo(() => {
+    if (validationAddress.length && !isAddress(validationAddress, { strict: false })) {
+      return "Invalid address"
+    }
+    return ""
+  }, [validationAddress])
+
+  // Automatically clear isValid if all inputs are cleared
+  useEffect(() => {
+    if (!validationAddress?.length && !validationMessage?.length && !validationSignature?.length) {
+      setIsValid(null)
+    }
+  }, [validationAddress, validationMessage, validationSignature])
 
   return (
     <>
@@ -121,11 +168,11 @@ const Home: NextPage = () => {
               </AccordionSummary>
               <AccordionDetails>
                 <Typography component="div">
-                  <TextSubtle textAlign="left">{`A wallet signature is a secure hashed version of a message, public key (account address) and private key, which can be publicly shared. It's how Dapps can validate that someone owns an account. The validation uses `}<Link href="https://www.geeksforgeeks.org/blockchain-elliptic-curve-digital-signature-algorithm-ecdsa/" target="_blank" rel="noopener noreferrer">ECDSA</Link>{` (Elliptic Curve Digital Signature Algorithm) and `}<Link href="https://viem.sh/docs/actions/public/verifyMessage" target="_blank" rel="noopener noreferrer">verifyMessage</Link>{` to prove that the signature was created by the owner of the account.`}</TextSubtle>
+                  <TextSubtle textAlign="left" fontSize="14px">{`A wallet signature is a secure hashed version of a message, public key (account address) and private key, which can be publicly shared. It's how Dapps can validate that someone owns an account. The signature uses `}<Link href="https://wagmi.sh/react/api/hooks/useSignMessage" target="_blank" rel="noopener noreferrer">useSignMessage</Link>{`. The validation uses `}<Link href="https://www.geeksforgeeks.org/blockchain-elliptic-curve-digital-signature-algorithm-ecdsa/" target="_blank" rel="noopener noreferrer">ECDSA</Link>{` (Elliptic Curve Digital Signature Algorithm) and `}<Link href="https://viem.sh/docs/actions/public/verifyMessage" target="_blank" rel="noopener noreferrer">verifyMessage</Link>{` to prove that the signature was created by the owner of the account.`}</TextSubtle>
                 </Typography>
                 <Typography component="div" mt={2}><TextNormal textAlign="left">Example</TextNormal></Typography>
                 <Typography component="div">
-                  <TextSubtle textAlign="left" sx={{ paddingLeft: "24px" }}>
+                  <TextSubtle textAlign="left" fontSize="14px" sx={{ paddingLeft: "24px" }}>
                     <ol>
                       <li>{`You want someone to validate their ownership of an ethereum compatible account. You send them a custom message for example "Hello Sir".`}</li>
                       <li>{`The person connects with that account, enters the message, sign and send back the signature to you.`}</li>
@@ -134,6 +181,21 @@ const Home: NextPage = () => {
                   </TextSubtle>
                 </Typography>
                 <Typography component="div" mt={2}><TextSubtle textAlign="left">{`Or if you want to prove that you are the owner, just give the instructions to whoever you need to prove it to. It's a higher quality proof if they choose the message.`}</TextSubtle></Typography>
+                <Typography component="div" mt={2}>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <TextNormal fontSize="14px" textAlign="left">{`Donate me a coffee: ${abbreviateAddressAsString(DONATION)}`}</TextNormal>
+                    <IconButton color="primary" size="small" onClick={handleCopyCoffee}>
+                      <ContentCopy />
+                    </IconButton>
+                  </Stack>
+                  {wasCopiedCoffee && (
+                    <Box>
+                      <TextSuccess fontSize="14px" textAlign="left">
+                        Copied!
+                      </TextSuccess>
+                    </Box>
+                  )}
+                </Typography>
               </AccordionDetails>
             </Accordion>
             <Box width="100%" mt="16px" mb="24px">
@@ -154,13 +216,25 @@ const Home: NextPage = () => {
                 mode="text"
                 placeholder="Any message"
                 disableReturn
+                endAdornment={
+                  <SearchClearButton
+                    size="medium"
+                    disabled={!signMessage.length}
+                    onClick={() => setSignMessage('')}
+                    disableRipple
+                    disableFocusRipple
+                    disableTouchRipple
+                  >
+                    <ClearIcon />
+                  </SearchClearButton>
+                }
               />
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2} width="100%">
                 <ConnectButton width="100%" />
-                <SuperButton variant="contained" color="primary" width="100%" size="large" onClick={handleSignMessage} disabled={!signMessage || !address}>
+                <SuperButton variant="contained" color="primary" width="100%" size="large" onClick={handleSignMessage} disabled={!signMessage?.length || !address?.length || isSigning} loading={isSigning}>
                   Sign Message
                 </SuperButton>
-                <SuperButton variant="contained" color="primary" width="100%" size="large" onClick={handleClearMessage} disabled={!signMessage}>
+                <SuperButton variant="contained" color="primary" width="100%" size="large" onClick={handleClearMessage} disabled={!signMessage?.length && !signature?.length}>
                   Clear
                 </SuperButton>
               </Stack>
@@ -173,7 +247,7 @@ const Home: NextPage = () => {
                   <IconButton color="primary" size="small" onClick={handleCopySignature} disabled={!signature}>
                     <ContentCopy />
                   </IconButton>
-                  {wasCopied && (
+                  {wasCopiedSignature && (
                     <Box position="absolute" top="6px" right="0">
                       <TextSuccess fontSize="14px">
                         Copied!
@@ -210,6 +284,20 @@ const Home: NextPage = () => {
                 mode="text"
                 placeholder="0x...123"
                 disableReturn
+                endAdornment={
+                  <SearchClearButton
+                    size="medium"
+                    disabled={!validationAddress.length}
+                    onClick={() => setValidationAddress('')}
+                    disableRipple
+                    disableFocusRipple
+                    disableTouchRipple
+                  >
+                    <ClearIcon />
+                  </SearchClearButton>
+                }
+                error={helperTextAddress?.length > 0}
+                helperText={helperTextAddress}
               />
               <SuperInput
                 onChange={(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -222,6 +310,18 @@ const Home: NextPage = () => {
                 mode="text"
                 placeholder="Any message"
                 disableReturn
+                endAdornment={
+                  <SearchClearButton
+                    size="medium"
+                    disabled={!validationMessage.length}
+                    onClick={() => setValidationMessage('')}
+                    disableRipple
+                    disableFocusRipple
+                    disableTouchRipple
+                  >
+                    <ClearIcon />
+                  </SearchClearButton>
+                }
               />
               <SuperInput
                 onChange={(e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -234,12 +334,27 @@ const Home: NextPage = () => {
                 mode="text"
                 placeholder="0x...123"
                 disableReturn
+                endAdornment={
+                  <SearchClearButton
+                    size="medium"
+                    disabled={!validationSignature.length}
+                    onClick={() => setValidationSignature('')}
+                    disableRipple
+                    disableFocusRipple
+                    disableTouchRipple
+                  >
+                    <ClearIcon />
+                  </SearchClearButton>
+                }
               />
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2} width="100%">
-                <SuperButton variant="contained" color="primary" width="100%" size="large" onClick={handleValidateSignature} disabled={!validationAddress || !validationMessage || !validationSignature}>
+                <SuperButton variant="contained" color="primary" width="100%" size="large" onClick={handleValidateSignature}
+                  disabled={!validationAddress?.length || !validationMessage?.length || !validationSignature?.length || isValidating || helperTextAddress?.length > 0}
+                  loading={isValidating}
+                >
                   Validate
                 </SuperButton>
-                <SuperButton variant="contained" color="primary" width="100%" size="large" onClick={handleClearValidation} disabled={!validationAddress && !validationMessage && !validationSignature}>
+                <SuperButton variant="contained" color="primary" width="100%" size="large" onClick={handleClearValidation} disabled={!validationAddress?.length && !validationMessage?.length && !validationSignature?.length}>
                   Clear
                 </SuperButton>
               </Stack>

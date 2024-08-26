@@ -56,9 +56,9 @@ export const wagmiConfig = createConfig({
 createWeb3Modal({ 
   wagmiConfig,
   projectId,
-  defaultChain: mainnet,
   enableAnalytics: true,
   enableOnramp: true,
+  allowUnsupportedChain: true,
   themeMode: 'dark',
   themeVariables: {
     '--w3m-color-mix': '#05228c',
