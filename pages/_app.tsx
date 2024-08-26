@@ -31,7 +31,7 @@ const gaID = env?.NEXT_PUBLIC_GA_ID || ''
 const metadata = {
   name: 'Web3Modal',
   description: 'Account Validator',
-  url: 'https://web3modal.com',
+  url: 'https://auth.cash',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
