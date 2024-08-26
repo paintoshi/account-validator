@@ -1,17 +1,17 @@
 /** @type {import('next').NextConfig} */
 /** Only needed if hosted on github pages URL: https://user.github.io/repo/
  * Also uncomment the assetPrefix and basePath below
- * const repo = 'repo'
- * const assetPrefix = `/${repo}/`
- * const basePath = `/${repo}`
-*/
+ */
+const repo = 'account-validator'
+const assetPrefix = `/${repo}/`
+const basePath = `/${repo}`
 
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   output: 'export',
-  // assetPrefix: assetPrefix,
-  // basePath: basePath
+  assetPrefix: assetPrefix,
+  basePath: basePath,
 
   webpack: (config, { isServer, dev }) => {
     // Enable source maps in dev
