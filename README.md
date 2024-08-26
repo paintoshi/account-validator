@@ -2,7 +2,7 @@
 
 Sign or validate accounts with Web3
 
-### Live at xyz
+### Live at https://auth.cash
 
 ## Development
 

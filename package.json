@@ -1,6 +1,7 @@
 {
   "name": "account-validator",
   "author": "Paintoshi",
+  "description": "Validate Ethereum account signatures",
   "version": "0.1.0",
   "private": true,
   "scripts": {

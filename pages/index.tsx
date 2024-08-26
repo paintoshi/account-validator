@@ -86,23 +86,23 @@ const Home: NextPage = () => {
     <>
       <Head>
         <title>Account Validator</title>
-        <meta name="description" content="Sign any message with web3 and let anyone validate your ownership of an account" />
+        <meta name="description" content="Sign any message with web3 and let anyone validate your ownership of an ethereum compatible account" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
 
         <meta name="keywords" content="fantom, sonic, fvm, testnet, transactions, speed, tps, crypto" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Account Validator with Web3 Signature" />
-        <meta name="twitter:image" content="" />
-        <meta name="twitter:domain" content="sonic.paintswap.io" />
+        <meta name="twitter:image" content="https://auth.cash/og.png" />
+        <meta name="twitter:domain" content="auth.cash" />
         <meta name="twitter:site" content="@paintoshi" />
         <meta name="twitter:creator" content="@paintoshi" />
-        <meta name="twitter:description" content="Sign any message with web3 and let anyone validate your ownership of an account" />
+        <meta name="twitter:description" content="Sign any message with web3 and let anyone validate your ownership of an ethereum compatible account" />
 
         <meta property="og:title" content="Account Validator with Web3 Signature" />
-        <meta property="og:description" content="Sign any message with web3 and let anyone validate your ownership of an account" />
-        <meta property="og:image" content="" />
-        <meta property="og:url" content="" />
+        <meta property="og:description" content="Sign any message with web3 and let anyone validate your ownership of an ethereum compatible account" />
+        <meta property="og:image" content="https://auth.cash/og.png" />
+        <meta property="og:url" content="https://auth.cash" />
       </Head>
       <main className={`${styles.main} ${manrope.className}`}>
         <div className={styles.center}>
@@ -121,18 +121,19 @@ const Home: NextPage = () => {
               </AccordionSummary>
               <AccordionDetails>
                 <Typography component="div">
-                  <TextSubtle textAlign="left">{`A wallet signature is a secure hashed version of the message, public key (account address) and private key, which can be publicly shared. It's how Dapps can validate that someone owns an account. The validation uses `}<Link href="https://www.geeksforgeeks.org/blockchain-elliptic-curve-digital-signature-algorithm-ecdsa/" target="_blank" rel="noopener noreferrer">ECDSA</Link>{` (Elliptic Curve Digital Signature Algorithm) and `}<Link href="https://viem.sh/docs/actions/public/verifyMessage" target="_blank" rel="noopener noreferrer">verifyMessage</Link>{` to prove that the signature was created by the owner of the account.`}</TextSubtle>
+                  <TextSubtle textAlign="left">{`A wallet signature is a secure hashed version of a message, public key (account address) and private key, which can be publicly shared. It's how Dapps can validate that someone owns an account. The validation uses `}<Link href="https://www.geeksforgeeks.org/blockchain-elliptic-curve-digital-signature-algorithm-ecdsa/" target="_blank" rel="noopener noreferrer">ECDSA</Link>{` (Elliptic Curve Digital Signature Algorithm) and `}<Link href="https://viem.sh/docs/actions/public/verifyMessage" target="_blank" rel="noopener noreferrer">verifyMessage</Link>{` to prove that the signature was created by the owner of the account.`}</TextSubtle>
                 </Typography>
                 <Typography component="div" mt={2}><TextNormal textAlign="left">Example</TextNormal></Typography>
                 <Typography component="div">
-                  <TextSubtle textAlign="left" sx={{ paddingLeft: "16px" }}>
+                  <TextSubtle textAlign="left" sx={{ paddingLeft: "24px" }}>
                     <ol>
-                      <li>{`You want someone to validate their ownership of an account. You send them a custom message for example "Hello Sir".`}</li>
+                      <li>{`You want someone to validate their ownership of an ethereum compatible account. You send them a custom message for example "Hello Sir".`}</li>
                       <li>{`The person connects with that account, enters the message, sign and send back the signature to you.`}</li>
                       <li>{`You enter the account, message and signature. If it says valid, you know that the signer has 100% access to that account. Also at that particular time, since they didn't know the message in advance.`}</li>
                     </ol>
                   </TextSubtle>
                 </Typography>
+                <Typography component="div" mt={2}><TextSubtle textAlign="left">{`Or if you want to prove that you are the owner, just give the instructions to whoever you need to prove it to. It's a higher quality proof if they choose the message.`}</TextSubtle></Typography>
               </AccordionDetails>
             </Accordion>
             <Box width="100%" mt="16px" mb="24px">
