@@ -33,6 +33,10 @@ const nextConfig = {
 
     return config;
   },
+  // When using output: 'export', image optimization is incompatible
+  images: {
+    unoptimized: true,
+  },
 };
 
 module.exports = nextConfig;
