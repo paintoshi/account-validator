@@ -61,7 +61,7 @@ createWeb3Modal({
   allowUnsupportedChain: true,
   themeMode: 'dark',
   themeVariables: {
-    '--w3m-color-mix': '#05228c',
+    '--w3m-color-mix': '#055b8c',
     '--w3m-color-mix-strength': 20
   }
 })
