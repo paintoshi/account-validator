@@ -18,7 +18,7 @@ import styled from "styled-components"
 import ClearIcon from '@mui/icons-material/Clear'
 import { abbreviateAddressAsString } from "@/helpers/Utilities"
 
-const DONATION = '0x8CA12Fb5438252ab8efa25d3fb34166EDA1c17ED'
+const DONATION = '0xbfea3d314ced3800eca29656285f08738d57e3ac'
 
 const manrope = Manrope({ subsets: ["latin"] })
 
